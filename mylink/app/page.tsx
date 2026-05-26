@@ -1,4 +1,40 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface LinkItem {
+  id: string;
+  title: string;
+  url: string;
+  createdAt?: unknown;
+}
+
 export default function Home() {
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Listen to real-time updates from Firestore
+    const q = query(
+      collection(db, "user", "anonymous", "links"),
+      orderBy("createdAt", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedLinks: LinkItem[] = [];
+      snapshot.forEach((doc) => {
+        fetchedLinks.push({ id: doc.id, ...doc.data() } as LinkItem);
+      });
+      setLinks(fetchedLinks);
+      setLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-black p-4">
       <main className="flex flex-col items-center justify-center w-full max-w-md p-8 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-200 dark:border-zinc-800 transition-all">
@@ -16,28 +52,26 @@ export default function Home() {
 
         {/* Links Section */}
         <div className="flex flex-col w-full gap-4">
-          <a
-            href="#"
-            className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-700/50 transition-all hover:scale-[1.02] active:scale-95 shadow-sm"
-          >
-            포트폴리오 보러가기
-          </a>
-          <a
-            href="https://github.com/cheeseseasoning"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-700/50 transition-all hover:scale-[1.02] active:scale-95 shadow-sm"
-          >
-            Github 방문하기
-          </a>
-          <a
-            href="#"
-            className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-700/50 transition-all hover:scale-[1.02] active:scale-95 shadow-sm"
-          >
-            연락하기 (Email)
-          </a>
+          {loading ? (
+            <p className="text-center text-gray-500 text-sm">링크를 불러오는 중...</p>
+          ) : links.length > 0 ? (
+            links.map((link) => (
+              <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-700/50 rounded-2xl border border-gray-200 dark:border-zinc-700/50 transition-all hover:scale-[1.02] active:scale-95 shadow-sm"
+              >
+                {link.title}
+              </a>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 text-sm">등록된 링크가 없습니다.</p>
+          )}
         </div>
       </main>
     </div>
   );
 }
+
