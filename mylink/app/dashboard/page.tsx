@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, getDoc } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 
@@ -47,6 +47,16 @@ export default function Home() {
     } finally {
       setAdding(false);
     }
+  };
+
+  const handleLinkClick = async (linkId: string, url: string) => {
+    try {
+      const linkRef = doc(db, "users", "anonymous", "links", linkId);
+      await updateDoc(linkRef, { clicks: increment(1) });
+    } catch (error) {
+      console.error("Error updating click count:", error);
+    }
+    window.open(url, "_blank");
   };
 
   useEffect(() => {
@@ -151,6 +161,10 @@ export default function Home() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLinkClick(link.id, link.url);
+                }}
                 className="flex items-center justify-between w-full py-4 px-6 text-sm font-semibold text-gray-900 dark:text-white bg-white dark:bg-zinc-800/80 hover:bg-gray-50 dark:hover:bg-zinc-700/80 rounded-2xl border border-gray-200 dark:border-zinc-700 transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 shadow-sm"
               >
                 <div className="w-16"></div> {/* Spacer for centering */}

@@ -1,6 +1,31 @@
 import Link from "next/link";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: { default: "마이링크", template: "%s | 마이링크" },
+  description: "나만의 링크 페이지를 30분만에 만들고 공유해 보세요.",
+  openGraph: {
+    title: "마이링크",
+    description: "나만의 링크 페이지를 30분만에 만들고 공유해 보세요.",
+    url: "https://my-link.example.com",
+    siteName: "마이링크",
+    locale: "ko_KR",
+    type: "website",
+    images: [{ url: "/og-image.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "마이링크",
+    description: "나만의 링크 페이지를 30분만에 만들고 공유해 보세요.",
+    images: ["/og-image.png"],
+  },
+  robots: { index: true, follow: true },
+};
+
 export default function LandingPage() {
+
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 flex flex-col font-sans">
       {/* Header / Navbar */}
