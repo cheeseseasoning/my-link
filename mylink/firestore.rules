@@ -18,9 +18,9 @@ service cloud.firestore {
       allow read: if true;
       // Allow creating a new link with required fields
       allow create: if request.resource.data.keys().hasAll(['title', 'url', 'createdAt', 'clicks']);
-      // Allow updating only the clickCount field by incrementing by 1
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount']) &&
-                    request.resource.data.clickCount == resource.data.get('clickCount', 0) + 1;
+      // Allow updating only the clicks field by incrementing by 1
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clicks']) &&
+                    request.resource.data.clicks == resource.data.get('clicks', 0) + 1;
     }
   }
 }

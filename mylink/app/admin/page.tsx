@@ -16,10 +16,11 @@ export default function AdminPage() {
     setMessage("");
 
     try {
-      await addDoc(collection(db, "user", "anonymous", "links"), {
+      await addDoc(collection(db, "users", "anonymous", "links"), {
         title,
         url,
         createdAt: serverTimestamp(),
+        clicks: 0,
       });
       setTitle("");
       setUrl("");
