@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  // Deny all by default
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow reading user profile documents
+    match /users/{uid} {
+      allow read: if true; // public read
+    }
+
+    // Links collection under each user
+    match /users/{uid}/links/{linkId} {
+      // Public read of links
+      allow read: if true;
+      // Allow creating a new link with required fields
+      allow create: if request.resource.data.keys().hasAll(['title', 'url', 'createdAt', 'clicks']);
+      // Allow updating only the clickCount field by incrementing by 1
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount']) &&
+                    request.resource.data.clickCount == resource.data.get('clickCount', 0) + 1;
+    }
+  }
+}
